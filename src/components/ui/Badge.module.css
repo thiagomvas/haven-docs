@@ -1,0 +1,14 @@
+.badge, .chip { display: inline-flex; align-items: center; gap: var(--space-1); border-radius: var(--radius-full); font-size: var(--font-size-xs); white-space: nowrap; }
+.badge { padding: 4px 8px; font-weight: var(--font-weight-semibold); }
+.chip { font-weight: var(--font-weight-medium); }
+.chip svg { width: 1em; height: 1em; }
+.chip-sm { padding: 4px 12px; }
+.chip-md { padding: 8px 12px; }
+.chip-lg { padding: 12px 16px; }
+.outlined { background: transparent !important; border: 1.5px solid currentColor; }
+
+.default { background: var(--color-surface-raised); color: var(--color-text-secondary); }
+.primary { background: var(--color-primary-subtle); color: var(--color-primary); }
+.success { background: var(--color-success-subtle); color: var(--color-success); }
+.warning { background: var(--color-warning-subtle); color: var(--color-warning); }
+.danger { background: var(--color-danger-subtle); color: var(--color-danger); }

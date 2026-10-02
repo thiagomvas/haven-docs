@@ -1,0 +1,12 @@
+.field { display: flex; flex-direction: column; gap: var(--space-2); }
+.label { font-size: var(--font-size-sm); font-weight: var(--font-weight-medium); color: var(--color-text-primary); }
+.input { width: 100%; padding: 8px 12px; border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-surface); color: var(--color-text-primary); font-size: var(--font-size-base); transition: all var(--transition-fast); }
+.input::placeholder { color: var(--color-text-muted); }
+.input:focus { outline: none; border-color: var(--color-primary); box-shadow: 0 0 0 3px var(--color-primary-subtle); }
+.input:disabled { background: var(--color-surface-raised); opacity: 0.6; cursor: not-allowed; }
+.inputError { border-color: var(--color-danger); }
+.inputError:focus { border-color: var(--color-danger); box-shadow: 0 0 0 3px var(--color-danger-subtle); }
+.error { font-size: var(--font-size-sm); color: var(--color-danger); }
+.search { position: relative; display: block; }
+.searchIcon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--color-text-muted); pointer-events: none; }
+.searchInput { padding-left: 36px; }

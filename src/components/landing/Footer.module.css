@@ -1,0 +1,14 @@
+.footer {
+  border-top: var(--border-thin);
+  color: var(--color-text-secondary);
+}
+
+.inner {
+  max-width: var(--content-width-wide);
+  margin: 0 auto;
+  padding: var(--space-8) var(--space-4);
+}
+
+.inner p {
+  margin: 0;
+}

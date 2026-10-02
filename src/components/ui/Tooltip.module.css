@@ -1,0 +1,4 @@
+.wrap { position: relative; display: inline-flex; }
+.tip { position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%); padding: 8px 12px; background: var(--color-surface-raised); border: 1px solid var(--color-border); border-radius: var(--radius-md); font-size: var(--font-size-sm); color: var(--color-text-primary); white-space: nowrap; z-index: var(--z-tooltip); opacity: 0; visibility: hidden; pointer-events: none; transition: opacity var(--transition-fast); }
+.tip::after { content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); border: 6px solid transparent; border-top-color: var(--color-border); }
+.wrap:hover .tip, .wrap:focus-within .tip { opacity: 1; visibility: visible; animation: fadeIn 100ms ease; }

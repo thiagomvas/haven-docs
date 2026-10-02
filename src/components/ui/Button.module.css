@@ -1,0 +1,46 @@
+.button {
+  display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2);
+  font-weight: var(--font-weight-medium);
+  border-radius: var(--radius-md);
+  padding: var(--button-padding-y, var(--space-2)) var(--button-padding-x, var(--space-4));
+  transition: all var(--transition-fast);
+  white-space: nowrap; border: none; cursor: pointer; text-decoration: none; line-height: var(--line-height-normal);
+}
+.button:disabled { opacity: 0.6; cursor: not-allowed; pointer-events: none; }
+
+.xs { font-size: var(--font-size-xs); }
+.sm { font-size: var(--font-size-sm); }
+.md { font-size: var(--font-size-base); }
+.lg { font-size: var(--font-size-lg); }
+.xl { font-size: var(--font-size-xl); }
+.button svg { width: 1.2em; height: 1.2em; }
+
+.primary { background: var(--color-primary); color: var(--color-text-on-primary); }
+.primary:hover { background: var(--color-primary-hover); color: var(--color-text-on-primary); }
+
+.secondary { background: var(--color-surface); color: var(--color-text-primary); border: 1px solid var(--color-border); }
+.secondary:hover { border-color: var(--color-primary); color: var(--color-primary); }
+
+.danger { background: var(--color-danger); color: #fff; }
+.danger:hover { background: var(--color-danger-hover); color: #fff; }
+
+.ghost { background: transparent; color: var(--color-text-primary); border: 1px solid var(--color-border); }
+.ghost:hover { background: var(--color-surface-raised); border-color: var(--color-primary); color: var(--color-primary); }
+
+.success { background: var(--color-success); color: #fff; }
+.success:hover { background: var(--color-success-hover); color: #fff; }
+
+.warning { background: var(--color-warning); color: #fff; }
+.warning:hover { background: var(--color-warning-hover); color: #fff; }
+
+.outline { background: transparent; color: var(--color-primary); border: 1px solid var(--color-primary); }
+.outline:hover { background: var(--color-primary); color: var(--color-text-on-primary); }
+
+.text { background: transparent; color: var(--color-primary); padding: 4px 8px; }
+.text:hover { opacity: 0.8; color: var(--color-primary); }
+
+.spinner {
+  width: 1em; height: 1em; border-radius: 50%;
+  border: 2px solid currentColor; border-top-color: transparent;
+  animation: spin 0.6s linear infinite;
+}

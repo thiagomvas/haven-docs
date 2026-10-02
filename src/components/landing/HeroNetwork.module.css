@@ -1,0 +1,67 @@
+.net { width: 100%; height: auto; display: block; overflow: visible; font-family: var(--font-mono); }
+
+.env { fill: none; stroke: var(--color-border-strong); stroke-width: 1; stroke-dasharray: 4 4; }
+.envLabel { fill: var(--color-text-muted); font-size: 10.5px; letter-spacing: 0.06em; }
+
+.link { fill: none; stroke: var(--color-border-strong); stroke-width: 1; }
+
+.pill { fill: var(--color-surface-raised); stroke: var(--color-border-strong); stroke-width: 1; }
+.pillText { fill: var(--color-text-primary); font-size: 11px; font-weight: var(--font-weight-medium); }
+
+.mark { color: var(--color-text-primary); }
+.halo { fill: none; stroke: var(--color-primary); stroke-width: 1.5; opacity: 0; transform-box: fill-box; transform-origin: center; animation: halo 10s ease-out infinite; }
+
+.dot { fill: var(--color-running); }
+.dotDev { animation: deployDev 10s linear infinite; }
+.dotProd { animation: deployProd 10s linear infinite; }
+
+.pulse { fill: var(--color-primary); opacity: 0; offset-rotate: 0deg; }
+.pulseCi { animation: ci 10s linear infinite; }
+.pulseDev { animation: dev 10s linear infinite; }
+.pulseProd { animation: prod 10s linear infinite; }
+
+@keyframes ci {
+  0% { offset-distance: 0%; opacity: 0; }
+  2% { opacity: 1; }
+  10% { offset-distance: 100%; opacity: 1; }
+  11%, 49% { offset-distance: 100%; opacity: 0; }
+  50% { offset-distance: 0%; opacity: 0; }
+  52% { opacity: 1; }
+  60% { offset-distance: 100%; opacity: 1; }
+  61%, 100% { offset-distance: 100%; opacity: 0; }
+}
+@keyframes dev {
+  0%, 10% { offset-distance: 0%; opacity: 0; }
+  11% { opacity: 1; }
+  26% { offset-distance: 100%; opacity: 1; }
+  27%, 100% { offset-distance: 100%; opacity: 0; }
+}
+@keyframes prod {
+  0%, 60% { offset-distance: 0%; opacity: 0; }
+  61% { opacity: 1; }
+  76% { offset-distance: 100%; opacity: 1; }
+  77%, 100% { offset-distance: 100%; opacity: 0; }
+}
+@keyframes halo {
+  0%, 8% { opacity: 0; transform: scale(0.9); }
+  10% { opacity: 0.8; transform: scale(1); }
+  20% { opacity: 0; transform: scale(1.35); }
+  58% { opacity: 0; transform: scale(0.9); }
+  60% { opacity: 0.8; transform: scale(1); }
+  70%, 100% { opacity: 0; transform: scale(1.35); }
+}
+@keyframes deployDev {
+  0%, 26% { fill: var(--color-running); }
+  27%, 40% { fill: var(--color-deploying); }
+  41%, 100% { fill: var(--color-running); }
+}
+@keyframes deployProd {
+  0%, 76% { fill: var(--color-running); }
+  77%, 90% { fill: var(--color-deploying); }
+  91%, 100% { fill: var(--color-running); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pulse, .halo { display: none; }
+  .dotDev, .dotProd { animation: none; }
+}
