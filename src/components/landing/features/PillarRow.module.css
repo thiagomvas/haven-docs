@@ -1,0 +1,35 @@
+.row { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 8fr); align-items: center; gap: var(--space-12); }
+.reverse { grid-template-columns: minmax(0, 8fr) minmax(0, 5fr); }
+.reverse .copy { order: 2; }
+
+.copy { display: flex; flex-direction: column; gap: var(--space-4); }
+.kicker { display: flex; align-items: center; gap: var(--space-3); }
+.icon { display: grid; place-items: center; width: 40px; height: 40px; border-radius: var(--radius-md); background: var(--color-primary-subtle); color: var(--color-primary); }
+.index { font-family: var(--font-mono); font-size: var(--font-size-sm); color: var(--color-text-muted); }
+.title { margin: 0; font-size: clamp(1.5rem, 2.6vw, 2rem); letter-spacing: -0.02em; }
+.description { margin: 0; font-size: var(--font-size-lg); line-height: var(--line-height-relaxed); color: var(--color-text-secondary); }
+.points { list-style: none; display: flex; flex-direction: column; gap: var(--space-2); }
+.points li { display: flex; align-items: center; gap: var(--space-2); font-size: var(--font-size-sm); color: var(--color-text-primary); }
+.points svg { flex: none; color: var(--color-primary); }
+
+.stage {
+  padding: var(--space-8);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  background:
+    radial-gradient(120% 90% at 100% 0%, rgba(var(--color-primary-rgb), 0.14), transparent 60%),
+    var(--color-surface);
+  min-width: 0;
+}
+.window { background: var(--color-bg); border: 1px solid var(--color-border-strong); border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); overflow: hidden; pointer-events: none; user-select: none; }
+.chrome { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-2) var(--space-3); background: var(--color-surface); border-bottom: 1px solid var(--color-border); }
+.lights { display: flex; gap: 6px; }
+.lights i { width: 10px; height: 10px; border-radius: 50%; background: var(--color-border-strong); }
+.windowTitle { font-family: var(--font-mono); font-size: var(--font-size-xs); color: var(--color-text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.body { padding: var(--space-4); display: flex; flex-direction: column; gap: var(--space-3); }
+
+@media (max-width: 960px) {
+  .row, .reverse { grid-template-columns: 1fr; gap: var(--space-6); }
+  .reverse .copy { order: 0; }
+  .stage { padding: var(--space-4); }
+}
