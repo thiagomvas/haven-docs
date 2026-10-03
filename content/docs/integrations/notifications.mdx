@@ -1,0 +1,199 @@
+---
+title: Notifications
+description: Send alerts about your projects, environments and services to any provider you want.
+order: 2
+---
+
+You set up one or more providers, then choose which events go to which provider. You can set this up once for the whole instance and override it for a specific project, environment or service.
+Haven doesn't send anything by default. Until you assign at least one provider to an event, that event produces no notifications.
+
+## Quick start
+
+1. Open **Notifications** in the sidebar.
+2. On the **Providers** tab, click **Add Channel**.
+3. Pick a channel type, enter a **Name** and the type-specific fields, and leave **Enabled** on.
+4. Click **Test Connection**. You should see **Delivered**.
+   <Callout type="info">
+     This will send a real notification through the provider to ensure it was
+     configured correctly.
+   </Callout>
+5. Click **Create Channel**.
+6. Open the **Event Routing** tab and select one or more events on the left.
+7. Tick your channel under **Configuring N events** on the right, then click **Save Changes**.
+8. Trigger one of those events, for example by restarting a service. Check the **Notification Attempts** tab to confirm the delivery.
+
+# Providers
+
+Each provider has a **Name**, an **Enabled** toggle (on by default) and type-specific fields. You can't change a provider's type after creating it. Create a new one instead.
+| Type | What Haven sends |
+| --------------- | ------------------------------------------------------ |
+| **Webhook** | An HTTP `POST` with a JSON body to your URL. |
+| **Discord** | A message to a Discord channel through its webhook. |
+| **Ntfy** | A push notification to an ntfy topic. |
+| **Email (SMTP)**| A plain-text email to the recipients you list. |
+
+### Webhook
+
+| Field           | Description                                                                             |
+| --------------- | --------------------------------------------------------------------------------------- |
+| **Webhook URL** | Required. Must be an absolute `http://` or `https://` URL.                              |
+| **Headers**     | Optional name/value pairs sent with every request. Rows with an empty name are dropped. |
+
+A `2xx` response counts as delivered. Anything else, or a network error, is recorded as failed.
+
+The body looks like this:
+
+```json
+{
+  "eventType": "ServiceStoppedEvent",
+  "occuredAt": "2026-10-02T14:03:11.482Z",
+  "message": "Service \"api\" (3f2a9c1e-...) was stopped",
+  "data": {
+    "serviceId": "3f2a9c1e-...",
+    "name": "api",
+    "primaryScope": "Service",
+    "primaryScopeId": "3f2a9c1e-..."
+  }
+}
+```
+
+### Discord
+
+| Field                   | Description                                                                            |
+| ----------------------- | -------------------------------------------------------------------------------------- |
+| **Discord Webhook URL** | Required. Example: `https://discord.com/api/webhooks/...`.                             |
+| **Use rich embeds**     | Off by default. Off sends plain text. On sends an embed with the message as its title. |
+
+With embeds on, Haven adds fields based on the event's level:
+
+- Service events: **Service**, **Service Id**, **Environment**, **Project**.
+- Environment events: **Environment**, **Environment Id**, **Project**.
+- Project events: **Project**, **Project Id**.
+- Events with no level, such as network events, get no fields.
+
+### Ntfy
+
+| Field           | Default   | Description                                                                |
+| --------------- | --------- | -------------------------------------------------------------------------- |
+| **Server Host** | `ntfy.sh` | Host only, no scheme. Add a port if needed, for example `ntfy.local:8081`. |
+| **Topic**       | none      | Required.                                                                  |
+| **Use HTTPS**   | **Off**   | When off, Haven connects over plain HTTP.                                  |
+
+Each push gets:
+
+| Item         | Value                                                                                                                                |
+| ------------ | ------------------------------------------------------------------------------------------------------------------------------------ |
+| Title        | The event name, for example `Service Stopped`.                                                                                       |
+| Priority     | `max` for **Service Stopped**, `high` for "Deleted" events, `low` for "Created" and "Updated" events, `default` for everything else. |
+| Tags         | `service`, `environment` or `user`, based on the event.                                                                              |
+| Click action | A link to the service, environment or project in Haven. Only added when your instance has a domain configured.                       |
+
+There are no fields for ntfy authentication, so protected topics can't be used.
+
+### Email (SMTP)
+
+| Field           | Default | Description                                                                     |
+| --------------- | ------- | ------------------------------------------------------------------------------- |
+| **SMTP Host**   | none    | Required.                                                                       |
+| **Port**        | `587`   | Required. 1–65535.                                                              |
+| **Username**    | empty   | Shown as optional.                                                              |
+| **Password**    | empty   | Stored encrypted. Leave it blank when editing to keep the current one.          |
+| **From Email**  | none    | Required.                                                                       |
+| **From Name**   | empty   | Optional.                                                                       |
+| **Use SSL/TLS** | **On**  | When on, Haven connects with STARTTLS. When off, the connection is unencrypted. |
+| **Recipients**  | one row | At least one address is required.                                               |
+
+The subject is the event name and the body is the event message as plain text. Every recipient goes on the same email. One invalid address fails the whole delivery. Haven doesn't support implicit TLS (port 465).
+
+# Event Routing
+
+You can configure notifications in any scope for any provider, for example you might want to send a Discord notification every time any service is deployed, but then a notification via Ntfy when a service goes down or is degraded, meanwhile for a specific project you know is deployed dozens of times per day you can simply disable the notifications for that service/environment/project.
+
+1. Select events on the left. You can search, filter by **All**, **Active** or **Inactive**, and use **Select all visible**.
+2. Tick or untick providers on the right. **mixed** means only some of the selected events use that provider.
+3. Click **Save Changes**, or **Discard** to throw the changes away.
+
+Saving replaces an event's provider list with exactly what's ticked. Unticking everything removes all providers from that event. Changes only affect future events.
+
+## Overrides
+
+Projects, environments and services each have a **Notifications** tab with the same editor, limited to the events that apply there. A bar at the top shows **Using global defaults** or **N events overridden**, with a **Reset to global** button.
+
+For each event, Haven checks the service first, then its environment, then its project. The first level with **any** override takes over completely. If none has one, the global rules apply.
+
+<Callout type="warning" title="An override covers the whole level">
+    Saving one event on a service, environment or project silences every other
+    event at that level unless you configure it there too. They don't fall back
+    to the global or parent settings. Before your first save, the tab shows the
+    global setup. After it, the tab shows only what's saved at that level.
+
+    To get back to inheriting, click **Reset to global**. That clears every
+    override on that level at once. Removing all providers from the last
+    overridden event has the same effect.
+
+</Callout>
+
+Sidecar, network and user events have no per-level routing and always use the global rules.
+
+# Delivery History
+
+The **Notification Attempts** tab lists every delivery across all providers, newest first, with a **Channel** filter. **View delivery history** on a card shows the same list for one provider.
+
+Columns are **Channel**, **Status**, **Event**, **Time** and **Error**.
+
+| Status        | Meaning                             |
+| ------------- | ----------------------------------- |
+| **Pending**   | Queued, not sent yet.               |
+| **Delivered** | The provider accepted it.           |
+| **Failed**    | Sending failed. **Error** says why. |
+
+Click **View payload** to see the **Event Payload** (what Haven recorded), the **Sent Payload** (what it actually sent) and the **Response** (what the provider answered).
+
+Notifications are sent in the background, so your action never waits on a slow provider. Failed event notifications are **not retried**. Fix the provider and use the send icon to confirm it works.
+
+# System default SMTP
+
+One SMTP provider can be marked as the system default with **⋮ -> Use as system default for account emails**. It then shows a **System Default** badge. Haven uses it for account emails, such as the invite sent when you create a user or resend an invite.
+
+- Only SMTP providers can be the default. Marking a new one clears the previous one.
+- Account emails go to the invited user, not to the provider's recipients list.
+- The provider still works as a normal provider for event notifications.
+- Account emails are retried up to 3 times.
+- If no enabled SMTP provider is the default, creating a user or resending an invite fails with "No SMTP provider is marked as the system default". Disabling the default provider has the same effect.
+
+# Permissions
+
+| Permission                      | Allows                                                                                                                                 |
+| ------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| **View system notifications**   | See the **Notifications** page, providers, routing and history, plus the **Notifications** tab on projects, environments and services. |
+| **Manage system notifications** | Add, edit, delete, enable or disable, test, set the system default, and save routing.                                                  |
+
+<Callout
+  type="warning"
+  title="Provider settings are visible to anyone who can view notifications"
+>
+  Only the SMTP password is encrypted and hidden. Webhook URLs and headers
+  (including any `Authorization` header), Discord webhook URLs and ntfy settings
+  are stored as entered and shown to every user with the view permission. Haven
+  also sends requests from its own machine, so internal addresses are valid
+  targets. Only give the manage permission to people you trust.
+</Callout>
+
+# Troubleshooting
+
+| Symptom                                       | Check                                                                                                                                                  |
+| --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| No notification for an event                  | Is a provider assigned to the event? Is it **Enabled**? Could an override on the service, environment or project be silencing it?                      |
+| Works globally but not on one service         | That service, its environment or its project has an override without the event. Check the **Notifications** tab at each level, or **Reset to global**. |
+| **Failed** with `HTTP 401` / `403`            | The webhook needs credentials. Add the right header under **Headers**.                                                                                 |
+| **Failed** with `HTTP 404`                    | The URL is wrong, or the webhook was deleted on the receiving side (common with Discord).                                                              |
+| **Failed** with a connection or timeout error | Haven can't reach the host. Check DNS, firewall, ports, and `http` vs `https` from the Haven machine.                                                  |
+| Attempt stays **Pending**                     | Refresh **Notification Attempts**. If it never changes, check Haven's logs.                                                                            |
+| ntfy test fails                               | Check **Server Host** (no `https://` prefix), **Topic** and **Use HTTPS**.                                                                             |
+| ntfy messages have no click link              | Your Haven instance needs a domain configured. Test messages never include one.                                                                        |
+| SMTP authentication or connection error       | Check host, port and **Use SSL/TLS**. Servers that expect implicit TLS on port 465 won't work.                                                         |
+| SMTP `Invalid email address: …`               | Fix the entry under **Recipients** or **From Email**.                                                                                                  |
+| SMTP test fails while editing                 | You left **Password** blank, so the form's test uses an empty password. Close the form and use the card's send icon instead.                           |
+| Inviting a user fails                         | Mark an enabled SMTP provider as the system default.                                                                                                   |
+| Discord message has no extra fields           | **Use rich embeds** is off, or the event has no project, environment or service level.                                                                 |
+| You can see **Notifications** but can't save  | You only have view permission. Ask an admin for **Manage system notifications**.                                                                       |
