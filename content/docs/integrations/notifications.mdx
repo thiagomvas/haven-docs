@@ -22,7 +22,7 @@ Haven doesn't send anything by default. Until you assign at least one provider t
 7. Tick your channel under **Configuring N events** on the right, then click **Save Changes**.
 8. Trigger one of those events, for example by restarting a service. Check the **Notification Attempts** tab to confirm the delivery.
 
-# Providers
+## Providers
 
 Each provider has a **Name**, an **Enabled** toggle (on by default) and type-specific fields. You can't change a provider's type after creating it. Create a new one instead.
 | Type | What Haven sends |
@@ -92,20 +92,20 @@ There are no fields for ntfy authentication, so protected topics can't be used.
 
 ### Email (SMTP)
 
-| Field           | Default | Description                                                                     |
-| --------------- | ------- | ------------------------------------------------------------------------------- |
-| **SMTP Host**   | none    | Required.                                                                       |
-| **Port**        | `587`   | Required. 1–65535.                                                              |
-| **Username**    | empty   | Shown as optional.                                                              |
-| **Password**    | empty   | Stored encrypted. Leave it blank when editing to keep the current one.          |
-| **From Email**  | none    | Required.                                                                       |
-| **From Name**   | empty   | Optional.                                                                       |
-| **Use SSL/TLS** | **On**  | When on, Haven connects with STARTTLS. When off, the connection is unencrypted. |
-| **Recipients**  | one row | At least one address is required.                                               |
+| Field           | Default | Description                                                                                                                                                                                                                         |
+| --------------- | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **SMTP Host**   | none    | Required. The hostname of the mail server Haven sends through, for example `smtp.example.com`. Your mail provider's docs list it.                                                                                                   |
+| **Port**        | `587`   | Required. The port the mail server accepts mail on (1–65535). `587` is the standard port for sending with STARTTLS, and `25` is common for unencrypted relays.                                                                      |
+| **Username**    | empty   | The account Haven signs in with. It's usually the full email address or an API username, depending on your provider. The form marks it as optional.                                                                                 |
+| **Password**    | empty   | The password for that account. Many providers require an app password or API key instead of your normal password. Haven stores it encrypted and never shows it again. When editing, leave it blank to keep the current one.         |
+| **From Email**  | none    | Required. The address that appears as the sender, for example `notifications@example.com`. Most providers only accept addresses or domains you've verified with them.                                                               |
+| **From Name**   | empty   | Optional. The display name next to the sender address, for example `Haven Notifications`. Recipients see it in their inbox.                                                                                                         |
+| **Use SSL/TLS** | **On**  | Encrypts the connection to the mail server. When on, Haven connects with STARTTLS. When off, your username and password travel unencrypted, so turn it off only for a trusted local relay. Implicit TLS (port 465) isn't supported. |
+| **Recipients**  | one row | Required, at least one. The addresses that receive every notification sent through this provider. Click **+ Add recipient** for more. They all go on the same email, so each one sees the others.                                   |
 
 The subject is the event name and the body is the event message as plain text. Every recipient goes on the same email. One invalid address fails the whole delivery. Haven doesn't support implicit TLS (port 465).
 
-# Event Routing
+## Event Routing
 
 You can configure notifications in any scope for any provider, for example you might want to send a Discord notification every time any service is deployed, but then a notification via Ntfy when a service goes down or is degraded, meanwhile for a specific project you know is deployed dozens of times per day you can simply disable the notifications for that service/environment/project.
 
@@ -115,7 +115,7 @@ You can configure notifications in any scope for any provider, for example you m
 
 Saving replaces an event's provider list with exactly what's ticked. Unticking everything removes all providers from that event. Changes only affect future events.
 
-## Overrides
+### Overrides
 
 Projects, environments and services each have a **Notifications** tab with the same editor, limited to the events that apply there. A bar at the top shows **Using global defaults** or **N events overridden**, with a **Reset to global** button.
 
@@ -135,7 +135,7 @@ For each event, Haven checks the service first, then its environment, then its p
 
 Sidecar, network and user events have no per-level routing and always use the global rules.
 
-# Delivery History
+## Delivery History
 
 The **Notification Attempts** tab lists every delivery across all providers, newest first, with a **Channel** filter. **View delivery history** on a card shows the same list for one provider.
 
@@ -151,7 +151,7 @@ Click **View payload** to see the **Event Payload** (what Haven recorded), the *
 
 Notifications are sent in the background, so your action never waits on a slow provider. Failed event notifications are **not retried**. Fix the provider and use the send icon to confirm it works.
 
-# System default SMTP
+## System default SMTP
 
 One SMTP provider can be marked as the system default with **⋮ -> Use as system default for account emails**. It then shows a **System Default** badge. Haven uses it for account emails, such as the invite sent when you create a user or resend an invite.
 
@@ -161,7 +161,7 @@ One SMTP provider can be marked as the system default with **⋮ -> Use as syste
 - Account emails are retried up to 3 times.
 - If no enabled SMTP provider is the default, creating a user or resending an invite fails with "No SMTP provider is marked as the system default". Disabling the default provider has the same effect.
 
-# Permissions
+## Permissions
 
 | Permission                      | Allows                                                                                                                                 |
 | ------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
@@ -179,7 +179,7 @@ One SMTP provider can be marked as the system default with **⋮ -> Use as syste
   targets. Only give the manage permission to people you trust.
 </Callout>
 
-# Troubleshooting
+## Troubleshooting
 
 | Symptom                                       | Check                                                                                                                                                  |
 | --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
