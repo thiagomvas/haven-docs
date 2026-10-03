@@ -1,0 +1,111 @@
+---
+title: Traefik Sidecar
+description: An integrated reverse proxy that haven directly interacts with to expose your services.
+order: 1
+---
+
+# Overview
+
+Traefik is the reverse proxy built into Haven as a sidecar. It routes traffic from a hostname, such as api.example.com, to the right service. You don't write any proxy config. You add a domain to a service, deploy it, and Haven wires up the routing.
+
+## Quick Start
+
+1. Go to Sidecars and enable Traefik. It listens on port 80 on all interfaces.
+2. Open a service and add a domain under Domains: a hostname and the port your container listens on.
+3. Deploy (or redeploy) the service.
+4. Point your DNS at the host. Requests for that hostname now reach your service.
+
+Traefik only routes services that have at least one domain. A service with no domains stays unexposed, and so does everything when Traefik is disabled.
+
+If a domain doesn't work right after you add it, redeploy the service. Routing is applied when the container is created.
+
+# Domains
+
+Each domain has:
+
+| Field                  | Description                                                                                  |
+| ---------------------- | -------------------------------------------------------------------------------------------- |
+| **Hostname**           | Must be a valid hostname. Stored in lowercase. It can only be used once across all services. |
+| **Container port**     | The port your app listens on inside the container (1–65535).                                 |
+| **TLS**                | None, Let's Encrypt, or Custom certificate. See [HTTPS](#https) below.                       |
+| **Internal base path** | Optional. See below.                                                                         |
+
+### Multiple domains
+
+A service can have several domains, each with its own port and TLS setting. They can point todifferent ports of the same container.
+
+### Internal base path
+
+This adds a path prefix to every request before it reaches your container. If you set `/api/v1`, a request to `api.example.com/users` reaches your app as `/api/v1/users`. Visitors never see the prefix. It muststart with `/`, and a trailing `/` is removed.
+
+## HTTPS
+
+HTTPS takes two steps. Enable it once for Traefik, then choose a TLS mode for each domain.
+
+### Enable HTTPS on Traefik
+
+Go to **Sidecars -> Traefik -> Configure -> SSL / HTTPS** and turn on **Enable HTTPS (Let's Encrypt)**. Enter an account email.
+
+- Haven publishes port 443 and sets up automatic certificate issuance.
+- Ports **80 and 443 must be reachable from the internet**, or issuance will fail.
+- Use **staging** while testing. It issues certificates that browsers don't trust, but it avoids Let's Encrypt's production rate limits. Turn it off when you go live.
+- Issued certificates are stored persistently and survive restarts and redeploys.
+
+### Choose a TLS mode per domain
+
+| Mode                   | Behavior                                                                          |
+| ---------------------- | --------------------------------------------------------------------------------- |
+| **None**               | HTTP only.                                                                        |
+| **Let's Encrypt**      | Haven requests and renews a certificate for you. HTTP requests redirect to HTTPS. |
+| **Custom certificate** | You bring your own certificate. HTTP requests redirect to HTTPS.                  |
+
+If you pick Let's Encrypt without step 1, the UI warns you. The domain won't get a certificate until you complete step 1.
+
+### Custom certificates
+
+1. Upload your certificate to the certificate library.
+2. Set the domain's TLS mode to **Custom certificate**.
+3. Attach the certificate to the domain. Traefik picks it up without a restart.
+
+Using your own custom certificates do come with a few caveats though:
+
+- Attaching an expired certificate, or one that doesn't cover the hostname, shows a warning but still succeeds.
+- A Custom domain with no certificate attached is flagged as incomplete.
+- Detaching removes the certificate from that domain only. The library copy stays and can be attached elsewhere.
+- Deleting a certificate from the library detaches it everywhere it's used. Those domains are left without a certificate.
+
+### Checking certificate status
+
+Each domain can show its certificate status on demand.
+
+- **Custom:** validity dates, common name, days until expiry, and whether it has expired or doesn't match the hostname.
+- **Let's Encrypt:** the live router status from Traefik, plus any errors Traefik reports (for example, failed issuance). If Traefik can't be reached, the status says so.
+
+## Dashboard Access
+
+Traefik has a dashboard for inspecting routers and services. Under **Configure**, you have three ways to reach it.
+
+- **Through a domain (recommended).** In the **Access** tab, assign a hostname to the dashboard. It supports the same TLS options as service domains.
+- **With login.** In the same tab, turn on **Basic Auth** and set a username and password. The password is stored hashed. Leave it blank when editing to keep the current one.
+- **Raw port.** **Enable dashboard** publishes port 8080.
+
+<Callout type="warning" title="Allow insecure dashboard access flag">
+  This flag serves the dashboard on port 8080 with no authentication. It
+  bypasses Basic Auth completely. Use it only for local debugging, on a machine
+  that isn't publicly reachable.
+</Callout>
+
+## Self-healing
+
+Sometimes Traefik keeps sending traffic to a container's old address after a network change, even though everything looks correct in Docker. Haven checks for this after deploys and also periodically in the background. If routing doesn't match reality, Haven restarts Traefik to refresh it. You don't need to do anything. A brief Traefik restart in the logs is expected when this happens.
+
+## Troubleshooting
+
+| Symptom                                   | Check                                                                                                                                                                      |
+| ----------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Hostname returns 404                      | Is Traefik enabled? Does the service have a domain? Did you redeploy after adding it?                                                                                      |
+| 502 / Bad Gateway                         | Does the domain's container port match the port your app actually listens on?                                                                                              |
+| No HTTPS certificate                      | Is HTTPS enabled on Traefik? Are ports 80 and 443 reachable from the internet? Check the domain's certificate status for errors.                                           |
+| Browser doesn't trust the certificate     | Staging mode is probably on. Turn it off and redeploy, unless you're using a custom certificade (or a self signed one), in that case you must trust it on your own device. |
+| Custom domain shows an incomplete warning | No certificate is attached. Upload one and attach it.                                                                                                                      |
+| Can't open the dashboard                  | Assign a domain in **Access**, or enable the raw port. Have your Basic Auth login ready.                                                                                   |
