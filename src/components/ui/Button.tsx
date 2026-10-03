@@ -13,6 +13,8 @@ interface Props extends ButtonHTMLAttributes<HTMLButtonElement> {
   /** Render as another element, e.g. "a" for link buttons. */
   as?: ElementType
   href?: string
+  target?: string
+  rel?: string
 }
 
 export function Button({

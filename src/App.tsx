@@ -1,6 +1,10 @@
+import { lazy } from 'react'
+import { Route, Routes } from 'react-router'
 import { Features, Footer, Hero, TopBar } from './components/landing'
 
-export default function App() {
+const DocsPage = lazy(() => import('./docs/DocsPage'))
+
+function Landing() {
   return (
     <>
       <TopBar />
@@ -10,5 +14,14 @@ export default function App() {
       </main>
       <Footer />
     </>
+  )
+}
+
+export default function App() {
+  return (
+    <Routes>
+      <Route path="/" element={<Landing />} />
+      <Route path="/docs/*" element={<DocsPage />} />
+    </Routes>
   )
 }

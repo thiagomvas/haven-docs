@@ -1,0 +1,125 @@
+---
+title: Getting Started
+description: Run Haven on your machine in a couple of minutes with Docker.
+order: 1
+---
+
+Haven is self-hosted application orchestration for small teams and solo developers. It's a single-machine platform for managing Docker containers and Compose stacks across multiple projects and environments, with a structured project/environment/service hierarchy, isolated networks per environment, shared secrets and environment variables, webhook-triggered deployments, and a dashboard to tie it all together.
+
+It doesn't replace Docker, Docker Compose, or Kubernetes. It builds on top of them to make four things easy:
+
+- **Reproducible infrastructure:** your entire setup lives in version-controlled files, so you can rebuild, share, or migrate everything at any time.
+- **Integrated deployments:** webhooks, alerts, notifications and an API surface that sit naturally inside your CI/CD pipelines.
+- **Unified service management:** every project and environment in one place, so you can spin up services for experimentation and tear them down just as fast.
+- **Visibility:** always know what's healthy, what changed, and what broke.
+
+<Callout type="warning" title="Early development">
+  Haven is in early development and is not recommended for critical scenarios, such as your own production server at work. Use at your own risk.
+</Callout>
+
+## Requirements
+
+- Docker, with access to the Docker socket. Haven uses it to deploy your services.
+- A reachable **PostgreSQL** database.
+
+Point the `ConnectionStrings__DefaultConnection` environment variable (or the `ConnectionStrings:DefaultConnection` config value) at your Postgres instance, for example:
+
+```text
+Host=postgres;Port=5432;Database=haven;Username=haven;Password=haven
+```
+
+## Running Haven
+
+### Using Docker Compose
+
+This is the quickest way to get started, since it runs Postgres for you. Save the following as `docker-compose.yml`:
+
+```yaml
+services:
+  haven:
+    image: thiagomvas/haven:latest
+    container_name: haven
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      ConnectionStrings__DefaultConnection: "Host=postgres;Port=5432;Database=haven;Username=haven;Password=haven"
+    volumes:
+      - haven-data:/data # manifests and backups are stored here
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres:17-alpine
+    container_name: haven-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: haven
+      POSTGRES_PASSWORD: haven
+      POSTGRES_DB: haven
+    volumes:
+      - haven-postgres-data:/var/lib/postgresql/data
+
+volumes:
+  haven-data:
+  haven-postgres-data:
+```
+
+Then start it:
+
+```bash
+docker compose up -d
+```
+
+Haven is now available at `http://localhost:8080`.
+
+<Callout type="info">
+  The same file is available in the repository at `docs/examples/docker-compose.yml`.
+</Callout>
+
+### As a single Docker container
+
+If you already have a PostgreSQL database, run Haven on its own. You need to mount the Docker socket and provide a connection string:
+
+```bash
+docker run -d --name haven \
+  -p 8080:8080 \
+  -v haven-data:/data \
+  -v /var/run/docker.sock:/var/run/docker.sock \
+  -e ConnectionStrings__DefaultConnection="Host=<postgres-host>;Port=5432;Database=haven;Username=haven;Password=haven" \
+  thiagomvas/haven:latest
+```
+
+## Development
+
+If you're working on Haven itself, the easiest way to get a full stack running is still Docker: build and run the image as described above. No local .NET, Postgres or Node setup is required.
+
+Only run Haven directly from your IDE when you need a debugger attached. In that case, don't run the whole stack locally. Run Postgres in Docker and let your IDE run the API and/or frontend against it.
+
+<Callout type="info">
+  Everything else (webhooks, Docker deploys, notifications) still talks to your real local Docker daemon. Only the database and config storage are swapped out.
+</Callout>
+
+1. Start Postgres only, using the dev Compose file:
+
+   ```bash
+   docker compose -f docker-compose.dev.yml up -d
+   ```
+
+   This matches the default `ConnectionStrings:DefaultConnection` in `appsettings.json`, so no extra configuration is needed.
+
+2. Run the API from your IDE, or from the command line, using the `Development` launch profile:
+
+   ```bash
+   dotnet run --project src/Presentation/Haven.Presentation.Api
+   ```
+
+   Manifests, backups and managed volumes are written to a project-relative `data/` folder instead of the container's `/data`, so this works on Windows, macOS and Linux. See `appsettings.Development.json`.
+
+3. If you're also touching the frontend, run it with its own Vite dev server instead of through the API's static files:
+
+   ```bash
+   cd src/Presentation/Haven.Web
+   npm run dev
+   ```
