@@ -1,0 +1,30 @@
+name: Documentation
+description: Request a new docs page or report a problem with existing docs
+title: "[Docs]: "
+labels: ["documentation"]
+body:
+  - type: dropdown
+    id: type
+    attributes:
+      label: Type
+      options:
+        - New page request
+        - Issue with existing docs
+    validations:
+      required: true
+
+  - type: input
+    id: location
+    attributes:
+      label: Page or topic
+      description: Link to the existing page, or the topic you'd like covered.
+    validations:
+      required: true
+
+  - type: textarea
+    id: details
+    attributes:
+      label: Details
+      description: What's missing, wrong, or unclear? Include a suggested fix if you have one.
+    validations:
+      required: true
